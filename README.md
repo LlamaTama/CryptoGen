@@ -1,0 +1,2 @@
+# CryptoGen
+Visual cryptography generator
