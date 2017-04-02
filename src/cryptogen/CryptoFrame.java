@@ -17,9 +17,6 @@
 package cryptogen;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -66,8 +63,8 @@ public class CryptoFrame extends JFrame implements ActionListener
             encryptImageButton;
     
     private boolean outputIsEditable = true;
-    private final static int MAX_IMAGE_HEIGHT = 1600;
-    private final static int MAX_IMAGE_WIDTH = 900;
+    private final static int MAX_IMAGE_HEIGHT = 900;
+    private final static int MAX_IMAGE_WIDTH = 1600;
     public final static Dimension MAX_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
     
     private CryptoFrame()
@@ -155,9 +152,9 @@ public class CryptoFrame extends JFrame implements ActionListener
         inputTextPanel.add(inputTextLabel, "wrap");
         inputTextPanel.add(inputTextScrollPanePanel, "grow, span 1 4, wrap");
         inputTextPanel.add(inputTextWidthLabel);
-        inputTextPanel.add(inputTextWidthSpinner, "wrap");
+        inputTextPanel.add(inputTextWidthSpinner, "wrap, grow");
         inputTextPanel.add(inputTextHeightLabel);
-        inputTextPanel.add(inputTextHeightSpinner, "wrap");
+        inputTextPanel.add(inputTextHeightSpinner, "wrap, grow");
         inputTextPanel.add(inputTextSizeLabel);
         inputTextPanel.add(inputTextFontSizeSpinner, "wrap, growx");
         inputTextPanel.add(previewTextImageButton, "span 3, split 2, align c, width 150:200:250, gaptop 15, gapright 40");
