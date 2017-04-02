@@ -66,6 +66,9 @@ public class CryptoFrame extends JFrame implements ActionListener
             encryptImageButton;
     
     private boolean outputIsEditable = true;
+    private final static int MAX_IMAGE_HEIGHT = 1600;
+    private final static int MAX_IMAGE_WIDTH = 900;
+    public final static Dimension MAX_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
     
     private CryptoFrame()
     {
@@ -138,9 +141,9 @@ public class CryptoFrame extends JFrame implements ActionListener
         inputTextTextArea = new JTextArea();
         inputTextTextArea.setLineWrap(true);
         inputTextTextArea.setWrapStyleWord(true);
-        inputTextScrollPane = new JScrollPane(inputTextTextArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        inputTextWidthSpinner = new JSpinner(new SpinnerNumberModel(100, 100, 1600, 100));
-        inputTextHeightSpinner = new JSpinner(new SpinnerNumberModel(100, 100, 1600, 100));
+        inputTextScrollPane = new JScrollPane(inputTextTextArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        inputTextWidthSpinner = new JSpinner(new SpinnerNumberModel(100, 100, MAX_IMAGE_WIDTH, 100));
+        inputTextHeightSpinner = new JSpinner(new SpinnerNumberModel(100, 100, MAX_IMAGE_HEIGHT, 100));
         inputTextFontSizeSpinner = new JSpinner(new SpinnerNumberModel(10, 2, 400, 10));
         encryptTextButton = new JButton("Encrypt text");
         encryptTextButton.addActionListener(this);
@@ -310,26 +313,11 @@ public class CryptoFrame extends JFrame implements ActionListener
     {
         BufferedImage preview = Encrypter.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
         JFrame previewFrame = new JFrame();
-        JPanel previewPanel = new JPanel()
-        {
-            @Override
-            protected void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                Dimension maxSize = Toolkit.getDefaultToolkit().getScreenSize();
-                int maxX = maxSize.width;
-                int x = maxX/2 - preview.getWidth()/2;
-                int maxY = maxSize.height;
-                int y = maxY/2 - preview.getHeight()/2;
-                g2.drawImage(preview, null, x, y);
-                g2.dispose();
-            }
-        };
-        JScrollPane previewScrollPane = new JScrollPane(previewPanel);
+        JLabel previewLabel = new JLabel(new ImageIcon(preview));
+        JScrollPane previewScrollPane = new JScrollPane(previewLabel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         previewFrame.add(previewScrollPane);
-        previewFrame.pack();
-        previewFrame.setSize(previewFrame.getPreferredSize());
+        previewFrame.setSize(MAX_SIZE);
+        previewFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         previewFrame.setLocationRelativeTo(null);
         previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         previewFrame.setVisible(true);
