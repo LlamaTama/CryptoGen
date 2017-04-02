@@ -16,10 +16,16 @@
  */
 package cryptogen;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
@@ -302,12 +308,40 @@ public class CryptoFrame extends JFrame implements ActionListener
     
     private void previewText()
     {
-        //BufferedImage preview = Encrypter.generateImage(inputTextTextArea.getText());
+        BufferedImage preview = Encrypter.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
+        JFrame previewFrame = new JFrame();
+        JPanel previewPanel = new JPanel()
+        {
+            @Override
+            protected void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                Dimension maxSize = Toolkit.getDefaultToolkit().getScreenSize();
+                int maxX = maxSize.width;
+                int x = maxX/2 - preview.getWidth()/2;
+                int maxY = maxSize.height;
+                int y = maxY/2 - preview.getHeight()/2;
+                g2.drawImage(preview, null, x, y);
+                g2.dispose();
+            }
+        };
+        JScrollPane previewScrollPane = new JScrollPane(previewPanel);
+        previewFrame.add(previewScrollPane);
+        previewFrame.pack();
+        previewFrame.setSize(previewFrame.getPreferredSize());
+        previewFrame.setLocationRelativeTo(null);
+        previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        previewFrame.setVisible(true);
     }
     
     private void encryptText()
     {
-        
+        BufferedImage image = Encrypter.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
+        if(Encrypter.encryptImage(image, (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText())))
+        {
+            JOptionPane.showMessageDialog(this, "Success!");
+        }
     }
     
     private void chooseImage()
@@ -324,9 +358,21 @@ public class CryptoFrame extends JFrame implements ActionListener
     
     private void encryptImage()
     {
-        if(new File(inputImageTextField.getText()).exists())
+        File imagePath = new File(inputImageTextField.getText());
+        if(imagePath.exists())
         {
-            
+            try
+            {
+                BufferedImage image = ImageIO.read(imagePath);
+                if(Encrypter.encryptImage(image, (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText())))
+                {
+                    JOptionPane.showMessageDialog(this, "Success!");
+                }
+            }
+            catch(IOException ioe)
+            {
+                System.out.println(ioe);
+            }
         }
         else
         {
