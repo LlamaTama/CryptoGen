@@ -66,49 +66,15 @@ public class Encrypter
         int imageCount = 1;
         
         ArrayList<BufferedImage> outputImages = new ArrayList<>();
-        BufferedImage cipherImage = expandImage(image);
-        BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage cipherImage = expandImage(image, numberOfImages);
         int numberOfPixels = image.getWidth()*image.getHeight();
         
         byte[]key = getKey(numberOfPixels);
         int rowCount = 0;
-        for(int y=0; y<image.getHeight(); y++)
-        {
-            for(int x=0; x<image.getWidth(); x++)
-            {
-                Color keyColor = key[(y*rowCount)+x]%2==0 ? new Color(NEW_WHITE) : new Color(NEW_BLACK);
-
-                if(keyColor.getRGB()==NEW_WHITE)
-                {
-                    keyImage.setRGB(x*2, y*2, NEW_BLACK);
-                    keyImage.setRGB(x*2, y*2+1, NEW_BLACK);
-                    keyImage.setRGB(x*2+1, y*2, NEW_WHITE);
-                    keyImage.setRGB(x*2+1, y*2+1, NEW_WHITE); 
-                }
-                else
-                {
-                    keyImage.setRGB(x*2, y*2, NEW_WHITE);
-                    keyImage.setRGB(x*2, y*2+1, NEW_WHITE);
-                    keyImage.setRGB(x*2+1, y*2, NEW_BLACK);
-                    keyImage.setRGB(x*2+1, y*2+1, NEW_BLACK);
-                }
-                
-                cipherImage.setRGB(x*2, y*2, colorXOR(image.getRGB(x, y),keyImage.getRGB(x*2, y*2)));
-                cipherImage.setRGB(x*2, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2, y*2+1)));
-                cipherImage.setRGB(x*2+1, y*2, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2)));
-                cipherImage.setRGB(x*2+1, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2+1)));
-                
-            }
-            rowCount++;
-        }
         
-        rowCount = 0;
-        
-        for(int i=1; i<numberOfImages-1; i++)
+        if(numberOfImages==2)
         {
-            BufferedImage outputImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            key = getKey(numberOfPixels);
-            
+            BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
             for(int y=0; y<image.getHeight(); y++)
             {
                 for(int x=0; x<image.getWidth(); x++)
@@ -117,32 +83,36 @@ public class Encrypter
 
                     if(keyColor.getRGB()==NEW_WHITE)
                     {
-                        outputImage.setRGB(x*2, y*2, NEW_BLACK);
-                        outputImage.setRGB(x*2, y*2+1, NEW_BLACK);
-                        outputImage.setRGB(x*2+1, y*2, NEW_WHITE);
-                        outputImage.setRGB(x*2+1, y*2+1, NEW_WHITE); 
+                        keyImage.setRGB(x*2, y*2, NEW_BLACK);
+                        keyImage.setRGB(x*2, y*2+1, NEW_WHITE);
+                        keyImage.setRGB(x*2+1, y*2, NEW_BLACK);
+                        keyImage.setRGB(x*2+1, y*2+1, NEW_WHITE); 
                     }
                     else
                     {
-                        outputImage.setRGB(x*2, y*2, NEW_WHITE);
-                        outputImage.setRGB(x*2, y*2+1, NEW_WHITE);
-                        outputImage.setRGB(x*2+1, y*2, NEW_BLACK);
-                        outputImage.setRGB(x*2+1, y*2+1, NEW_BLACK);
+                        keyImage.setRGB(x*2, y*2, NEW_WHITE);
+                        keyImage.setRGB(x*2, y*2+1, NEW_BLACK);
+                        keyImage.setRGB(x*2+1, y*2, NEW_WHITE);
+                        keyImage.setRGB(x*2+1, y*2+1, NEW_BLACK);
                     }
 
-                    cipherImage.setRGB(x*2, y*2, colorXOR(image.getRGB(x, y),outputImage.getRGB(x*2, y*2)));
-                    cipherImage.setRGB(x*2, y*2+1, colorXOR(image.getRGB(x, y), outputImage.getRGB(x*2, y*2+1)));
-                    cipherImage.setRGB(x*2+1, y*2, colorXOR(image.getRGB(x, y), outputImage.getRGB(x*2+1, y*2)));
-                    cipherImage.setRGB(x*2+1, y*2+1, colorXOR(image.getRGB(x, y), outputImage.getRGB(x*2+1, y*2+1)));
+                    cipherImage.setRGB(x*2, y*2, colorXOR(image.getRGB(x, y),keyImage.getRGB(x*2, y*2)));
+                    cipherImage.setRGB(x*2, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2, y*2+1)));
+                    cipherImage.setRGB(x*2+1, y*2, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2)));
+                    cipherImage.setRGB(x*2+1, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2+1)));
 
                 }
                 rowCount++;
             }
-            outputImages.add(outputImage);
+
+            outputImages.add(cipherImage);
+            outputImages.add(keyImage);
         }
         
-        outputImages.add(0, cipherImage);
-        outputImages.add(1, keyImage);
+        else if(numberOfImages==4)
+        {
+            
+        }
         
         Iterator<BufferedImage> imageIterator = outputImages.iterator();
         while(imageIterator.hasNext())
@@ -157,12 +127,11 @@ public class Encrypter
     {
         BufferedImage expandedImage = new BufferedImage(image.getWidth()*2, image.getHeight()*2, BufferedImage.TYPE_INT_ARGB);
         
-        
         for(int x=0; x<image.getWidth(); x++)
         {
             for(int y=0; y<image.getHeight(); y++)
             {
-                
+
                 if(image.getRGB(x, y)==Color.WHITE.getRGB())
                 {
                     expandedImage.setRGB(x*2, y*2, NEW_WHITE);
