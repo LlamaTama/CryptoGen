@@ -16,6 +16,7 @@
  */
 package cryptogen;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.*;
@@ -207,7 +208,9 @@ public class CryptoFrame extends JFrame implements ActionListener
                 @Override
                 public void run()
                 {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     previewText();
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 }
             };
             previewThread.start();
@@ -219,7 +222,9 @@ public class CryptoFrame extends JFrame implements ActionListener
                 @Override
                 public void run()
                 {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     encryptText();
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 }
             };
             encryptTextThread.start();
@@ -235,7 +240,9 @@ public class CryptoFrame extends JFrame implements ActionListener
                 @Override
                 public void run()
                 {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     encryptImage();
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 }
             };
             encryptImageThread.start();
