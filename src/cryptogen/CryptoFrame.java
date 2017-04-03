@@ -349,7 +349,7 @@ public class CryptoFrame extends JFrame implements ActionListener
             try
             {
                 BufferedImage image = ImageIO.read(imagePath);
-                if(Encrypter.encryptImage(image, (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
+                if(Encrypter.encryptImage(Encrypter.prepareImage(image), (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
                 {
                     JOptionPane.showMessageDialog(this, "Success!");
                 }
