@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
@@ -98,34 +99,53 @@ public class Encrypter
         
         if(numberOfImages==2)
         {
+            Integer[][] share1 = {{NEW_WHITE, NEW_BLACK}, {NEW_BLACK, NEW_WHITE},};
+            Integer[][] share2 = {{NEW_BLACK, NEW_WHITE}, {NEW_WHITE, NEW_BLACK}};
+            
             BufferedImage cipherImage = expandImage(image);
             BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
             for(int y=0; y<image.getHeight(); y++)
             {
                 for(int x=0; x<image.getWidth(); x++)
                 {
-                    Color keyColor = key[(y*image.getWidth())+x]%2==0 ? new Color(NEW_WHITE) : new Color(NEW_BLACK);
-
-                    if(keyColor.getRGB()==NEW_WHITE)
+                    if(image.getRGB(x, y)==NEW_WHITE)
                     {
-                        keyImage.setRGB(x*2, y*2, NEW_BLACK);
-                        keyImage.setRGB(x*2, y*2+1, NEW_WHITE);
-                        keyImage.setRGB(x*2+1, y*2, NEW_BLACK);
-                        keyImage.setRGB(x*2+1, y*2+1, NEW_WHITE); 
+                        for(int row=0; row<2; row++)
+                        {
+                            for(int col=0; col<2; col++)
+                            {
+                                if(key[(y*image.getWidth())+x]%2==0)
+                                {
+                                    keyImage.setRGB(x*2+col, y*2+row, share1[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, share1[row][col]);
+                                }
+                                else
+                                {
+                                    keyImage.setRGB(x*2+col, y*2+row, share2[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, share2[row][col]);
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        keyImage.setRGB(x*2, y*2, NEW_WHITE);
-                        keyImage.setRGB(x*2, y*2+1, NEW_BLACK);
-                        keyImage.setRGB(x*2+1, y*2, NEW_WHITE);
-                        keyImage.setRGB(x*2+1, y*2+1, NEW_BLACK);
+                        for(int row=0; row<2; row++)
+                        {
+                            for(int col=0; col<2; col++)
+                            {
+                                if(key[(y*image.getWidth())+x]%2==0)
+                                {
+                                    keyImage.setRGB(x*2+col, y*2+row, share1[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, share2[row][col]);
+                                }
+                                else
+                                {
+                                    keyImage.setRGB(x*2+col, y*2+row, share2[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, share1[row][col]);
+                                }
+                            }
+                        }
                     }
-
-                    cipherImage.setRGB(x*2, y*2, colorXOR(image.getRGB(x, y),keyImage.getRGB(x*2, y*2)));
-                    cipherImage.setRGB(x*2, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2, y*2+1)));
-                    cipherImage.setRGB(x*2+1, y*2, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2)));
-                    cipherImage.setRGB(x*2+1, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2+1)));
-
                 }
             }
 
@@ -249,9 +269,9 @@ public class Encrypter
         return expandedImage;
     }
     
-    private static byte[] getKey(int pixelsPerImage)
+    private static byte[] getKey(int numberOfElements)
     {
-        byte[] key = new byte[pixelsPerImage];
+        byte[] key = new byte[numberOfElements];
         SecureRandom sr;
         
         try 
