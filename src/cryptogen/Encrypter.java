@@ -61,6 +61,31 @@ public class Encrypter
         return result;
     }
     
+    public static BufferedImage prepareImage(BufferedImage image)
+    {
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = result.createGraphics();
+        g2.drawImage(image, null, 0, 0);
+        g2.dispose();
+        
+        for(int y=0; y<result.getHeight(); y++)
+        {
+            for(int x=0; x<result.getWidth(); x++)
+            {
+                if(result.getRGB(x, y)==Color.WHITE.getRGB())
+                {
+                    result.setRGB(x, y, NEW_WHITE);
+                }
+                else if(result.getRGB(x, y)==Color.BLACK.getRGB())
+                {
+                    result.setRGB(x, y, NEW_BLACK);
+                }
+            }
+        }
+        
+        return result;
+}
+    
     public static boolean encryptImage(BufferedImage image, int numberOfImages, File path, String prefix)
     {
         boolean result = true;
@@ -70,7 +95,6 @@ public class Encrypter
         int numberOfPixels = image.getWidth()*image.getHeight();
         
         byte[]key = getKey(numberOfPixels);
-        int rowCount = 0;
         
         if(numberOfImages==2)
         {
@@ -80,7 +104,7 @@ public class Encrypter
             {
                 for(int x=0; x<image.getWidth(); x++)
                 {
-                    Color keyColor = key[(y*rowCount)+x]%2==0 ? new Color(NEW_WHITE) : new Color(NEW_BLACK);
+                    Color keyColor = key[(y*image.getWidth())+x]%2==0 ? new Color(NEW_WHITE) : new Color(NEW_BLACK);
 
                     if(keyColor.getRGB()==NEW_WHITE)
                     {
@@ -103,7 +127,6 @@ public class Encrypter
                     cipherImage.setRGB(x*2+1, y*2+1, colorXOR(image.getRGB(x, y), keyImage.getRGB(x*2+1, y*2+1)));
 
                 }
-                rowCount++;
             }
 
             outputImages.add(cipherImage);
