@@ -202,11 +202,27 @@ public class CryptoFrame extends JFrame implements ActionListener
         }
         else if(ae.getSource()==previewTextImageButton)
         {
-            previewText();
+            Thread previewThread = new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    previewText();
+                }
+            };
+            previewThread.start();
         }
         else if(ae.getSource()==encryptTextButton)
         {
-            encryptText();
+            Thread encryptTextThread = new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    encryptText();
+                }
+            };
+            encryptTextThread.start();
         }
         else if(ae.getSource()==inputImageBrowseButton)
         {
@@ -214,7 +230,15 @@ public class CryptoFrame extends JFrame implements ActionListener
         }
         else if(ae.getSource()==encryptImageButton)
         {
-            encryptImage();
+            Thread encryptImageThread = new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    encryptImage();
+                }
+            };
+            encryptImageThread.start();
         }
     }
     
