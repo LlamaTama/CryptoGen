@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 
@@ -66,7 +67,6 @@ public class Encrypter
         int imageCount = 1;
         
         ArrayList<BufferedImage> outputImages = new ArrayList<>();
-        BufferedImage cipherImage = expandImage(image);
         int numberOfPixels = image.getWidth()*image.getHeight();
         
         byte[]key = getKey(numberOfPixels);
@@ -74,6 +74,7 @@ public class Encrypter
         
         if(numberOfImages==2)
         {
+            BufferedImage cipherImage = expandImage(image);
             BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
             for(int y=0; y<image.getHeight(); y++)
             {
@@ -111,7 +112,80 @@ public class Encrypter
         
         else if(numberOfImages==4)
         {
+            Integer[][] blackShare1 = {{NEW_WHITE, NEW_BLACK, NEW_BLACK}, {NEW_BLACK, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_WHITE, NEW_WHITE}};
+            Integer[][] blackShare2 = {{NEW_WHITE, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}, {NEW_WHITE, NEW_BLACK, NEW_BLACK}};
+            Integer[][] blackShare3 = {{NEW_WHITE, NEW_WHITE, NEW_BLACK}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_WHITE, NEW_BLACK}};
+            Integer[][] blackShare4 = {{NEW_WHITE, NEW_WHITE, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_BLACK}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}};
+            ArrayList<Integer[][]> blackShare = new ArrayList<>();
+            blackShare.add(blackShare1);
+            blackShare.add(blackShare2);
+            blackShare.add(blackShare3);
+            blackShare.add(blackShare4);
             
+            Integer[][] whiteShare1 = {{NEW_WHITE, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_BLACK, NEW_WHITE}};
+            Integer[][] whiteShare2 = {{NEW_WHITE, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_WHITE, NEW_BLACK}};
+            Integer[][] whiteShare3 = {{NEW_WHITE, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}};
+            Integer[][] whiteShare4 = {{NEW_BLACK, NEW_WHITE, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_BLACK, NEW_WHITE}};
+            ArrayList<Integer[][]> whiteShare = new ArrayList<>();
+            whiteShare.add(whiteShare1);
+            whiteShare.add(whiteShare2);
+            whiteShare.add(whiteShare3);
+            whiteShare.add(whiteShare4);
+            
+            BufferedImage share1 = new BufferedImage(image.getWidth()*3, image.getHeight()*3, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage share2 = new BufferedImage(image.getWidth()*3, image.getHeight()*3, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage share3 = new BufferedImage(image.getWidth()*3, image.getHeight()*3, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage share4 = new BufferedImage(image.getWidth()*3, image.getHeight()*3, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage[] shares = {share1, share2, share3, share4};
+            
+            for(int y=0; y<image.getHeight(); y++)
+            {
+                for(int x=0; x<image.getWidth(); x++)
+                {
+                    if(image.getRGB(x, y)==NEW_WHITE)
+                    {
+                        Collections.shuffle(whiteShare, getSecureRandom());
+                        int shareSchemeCount = 0;
+                        
+                        for(BufferedImage share:shares)
+                        {
+                            Integer[][] shareScheme = whiteShare.get(shareSchemeCount++);
+                            
+                            for(int row=0; row<3; row++)
+                            {
+                                for(int col=0; col<3; col++)
+                                {
+                                    share.setRGB(x*3+col, y*3+row, shareScheme[row][col]);
+                                }
+                            }
+                            
+                        }
+                    }
+                    else
+                    {
+                        Collections.shuffle(blackShare, getSecureRandom());
+                        int shareSchemeCount = 0;
+                        
+                        for(BufferedImage share:shares)
+                        {
+                            Integer[][] shareScheme = blackShare.get(shareSchemeCount++);
+                            
+                            for(int row=0; row<3; row++)
+                            {
+                                for(int col=0; col<3; col++)
+                                {
+                                    share.setRGB(x*3+col, y*3+row, shareScheme[row][col]);
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            outputImages.add(shares[0]);
+            outputImages.add(shares[1]);
+            outputImages.add(shares[2]);
+            outputImages.add(shares[3]);
         }
         
         Iterator<BufferedImage> imageIterator = outputImages.iterator();
@@ -169,6 +243,22 @@ public class Encrypter
         sr.nextBytes(key);
         
         return key;
+    }
+    
+    private static SecureRandom getSecureRandom()
+    {
+        SecureRandom sr;
+
+        try 
+        {
+            sr = SecureRandom.getInstance("SHA1PRNG");
+        } 
+        catch (NoSuchAlgorithmException ex) 
+        {
+            sr = new SecureRandom();
+        }
+        
+        return sr;
     }
     
     private static boolean writeImageToFile(BufferedImage image, File path)
