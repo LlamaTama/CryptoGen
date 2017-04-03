@@ -17,8 +17,6 @@
 
 package cryptogen;
 
-import com.sun.openpisces.AlphaConsumer;
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -38,15 +36,14 @@ import javax.imageio.ImageIO;
  */
 public class Encrypter 
 {
-    public static BufferedImage generateImage(String text, int fontSize, int height, int width, int numberOfImages)
+    public static BufferedImage generateImage(String text, int fontSize, int height, int width)
     {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         
         Graphics2D g2 = result.createGraphics();
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 1/numberOfImages));
         g2.setColor(Color.WHITE);
         g2.fillRect(0, 0, width, height);
-        g2.setPaint(Color.BLACK);
+        g2.setColor(Color.BLACK);
         g2.setFont(new Font("Arial", Font.BOLD, fontSize));
         FontMetrics fm = g2.getFontMetrics();
         int textHeight = fm.getHeight();
@@ -60,61 +57,38 @@ public class Encrypter
         return result;
     }
     
-    public static BufferedImage prepareImage(BufferedImage image, int numberOfImages)
-    {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        
-        Graphics2D g2 = result.createGraphics();
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 1/numberOfImages));
-        g2.drawImage(image, null, 0, 0);
-        g2.dispose();
-        
-        return result;
-    }
-    
     public static boolean encryptImage(BufferedImage image, int numberOfImages, File path, String prefix)
     {
         boolean result = true;
         int imageCount = 1;
         
         ArrayList<BufferedImage> outputImages = new ArrayList<>();
-        
-        byte[][] keys = getKeys(numberOfImages-1, image.getWidth()*image.getHeight());
-        
+        BufferedImage cipherImage = expandImage(image);
+        int numberOfPixels = cipherImage.getWidth()*cipherImage.getHeight();
         for(int i=0; i<numberOfImages-1; i++)
         {
-            byte[] key = keys[i];
-            BufferedImage keyImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            byte[]key = getKey(numberOfPixels);
+            BufferedImage outputImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
             int rowCount = 0;
-            for(int y=0; y<image.getHeight(); y++)
+            for(int y=0; y<cipherImage.getHeight(); y++)
             {
-                for(int x=0; x<image.getWidth(); x++)
+                for(int x=0; x<cipherImage.getWidth(); x++)
                 {
-                    int redVal, blueVal, greenVal, alphaVal = 255/numberOfImages, keyColor;
+                    Color keyColor = key[(y*rowCount)+x]%2==0 ? new Color(255, 255, 255, 127) : new Color(0, 0, 0, 127);
+                    Color colorVal = new Color(cipherImage.getRGB(x, y));
+                    int redVal = keyColor.getRed()^colorVal.getRed();
+                    int greenVal = keyColor.getGreen()^colorVal.getGreen();
+                    int blueVal = keyColor.getBlue()^colorVal.getBlue();
                     
-                    if(key[(y*rowCount)+x]==1)
-                    {
-                        redVal = Color.WHITE.getRed();
-                        blueVal = Color.WHITE.getBlue();
-                        greenVal = Color.WHITE.getGreen();
-                        keyColor = (alphaVal<<24) | (redVal<<16) | (greenVal<<8) | blueVal;
-                    }
-                    else
-                    {
-                        redVal = Color.BLACK.getRed();
-                        blueVal = Color.BLACK.getBlue();
-                        greenVal = Color.BLACK.getGreen();
-                        keyColor = (alphaVal<<24) | (redVal<<16) | (greenVal<<8) | blueVal;
-                    }
-                    
-                    image.setRGB(x, y, (image.getRGB(x, y)^keyColor));
-                    keyImage.setRGB(x, y, keyColor);
+                    cipherImage.setRGB(x, y, new Color(redVal, greenVal, blueVal, 127).getRGB());
+                    outputImage.setRGB(x, y, keyColor.getRGB());
                 }
+                rowCount++;
             }
-            outputImages.add(keyImage);
+            outputImages.add(outputImage);
         }
         
-        outputImages.add(0, image);
+        outputImages.add(0, cipherImage);
         
         Iterator<BufferedImage> imageIterator = outputImages.iterator();
         while(imageIterator.hasNext())
@@ -125,10 +99,42 @@ public class Encrypter
         return result;
     }
     
-    private static byte[][] getKeys(int numberOfKeys, int pixelsPerImage)
+    private static BufferedImage expandImage(BufferedImage image)
     {
-        byte[][] keys = new byte[numberOfKeys][pixelsPerImage];
+        BufferedImage expandedImage = new BufferedImage(image.getWidth()*2, image.getHeight()*2, BufferedImage.TYPE_INT_ARGB);
+        int newWhite = new Color(255, 255, 255, 127).getRGB();
+        int newBlack = new Color(0, 0, 0, 127).getRGB();
+        
+        for(int x=0; x<image.getWidth(); x++)
+        {
+            for(int y=0; y<image.getHeight(); y++)
+            {
+                
+                if(image.getRGB(x, y)==Color.WHITE.getRGB())
+                {
+                    expandedImage.setRGB(x*2, y*2, newWhite);
+                    expandedImage.setRGB(x*2, y*2+1, newWhite);
+                    expandedImage.setRGB(x*2+1, y*2, newWhite);
+                    expandedImage.setRGB(x*2+1, y*2+1, newWhite);
+                }
+                else
+                {
+                    expandedImage.setRGB(x*2, y*2, newBlack);
+                    expandedImage.setRGB(x*2, y*2+1, newBlack);
+                    expandedImage.setRGB(x*2+1, y*2, newBlack);
+                    expandedImage.setRGB(x*2+1, y*2+1, newBlack);
+                }
+            }
+        }
+        
+        return expandedImage;
+    }
+    
+    private static byte[] getKey(int pixelsPerImage)
+    {
+        byte[] key = new byte[pixelsPerImage];
         SecureRandom sr;
+        
         try 
         {
             sr = SecureRandom.getInstance("SHA1PRNG");
@@ -138,18 +144,9 @@ public class Encrypter
             sr = new SecureRandom();
         }
         
-        for(int i=0; i<numberOfKeys; i++)
-        {
-            byte key[] = new byte[pixelsPerImage];
-            sr.nextBytes(key);
-            
-            for(int j=0; j<pixelsPerImage; j++)
-            {
-                keys[i][j] = (byte) Math.abs(key[j]%2);
-            }
-        }
+        sr.nextBytes(key);
         
-        return keys;
+        return key;
     }
     
     private static boolean writeImageToFile(BufferedImage image, File path)
