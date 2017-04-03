@@ -96,7 +96,7 @@ public class CryptoFrame extends JFrame implements ActionListener
         outputPanel = new JPanel(new MigLayout("fillx, gapy 10", "[][grow][][]"));
         outputDirectoryTextField = new JTextField();
         outputFileTextField = new JTextField();
-        numberOfImagesSpinner = new JSpinner(new SpinnerNumberModel(2, 2, 10, 1));
+        numberOfImagesSpinner = new JSpinner(new SpinnerNumberModel(2, 2, 4, 2));
         numberOfImagesLabel = new JLabel("Number of images:");
         outputDirectoryLabel = new JLabel("Output directory:");
         filePrefixLabel = new JLabel("File prefix:");
