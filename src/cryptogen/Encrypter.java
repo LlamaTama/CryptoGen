@@ -66,7 +66,7 @@ public class Encrypter
         int imageCount = 1;
         
         ArrayList<BufferedImage> outputImages = new ArrayList<>();
-        BufferedImage cipherImage = expandImage(image, numberOfImages);
+        BufferedImage cipherImage = expandImage(image);
         int numberOfPixels = image.getWidth()*image.getHeight();
         
         byte[]key = getKey(numberOfPixels);
