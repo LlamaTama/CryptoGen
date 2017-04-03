@@ -16,6 +16,8 @@
  */
 package cryptogen;
 
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author Tanesh Manjrekar
@@ -24,6 +26,14 @@ public class CryptoGen
 {
     public static void main(String args[])
     {
-        CryptoFrame.createFrame();
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                CryptoFrame.createFrame();
+            }
+        });
+        
     }
 }
