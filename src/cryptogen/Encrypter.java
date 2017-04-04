@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
@@ -38,8 +37,9 @@ import javax.imageio.ImageIO;
  */
 public class Encrypter 
 {
-    private static final int NEW_WHITE = new Color(255, 255, 255, 255).getRGB();
+    private static final int NEW_WHITE = new Color(0, 0, 0, 255).getRGB();
     private final static int NEW_BLACK = new Color(0, 0, 0, 0).getRGB();
+    private static final SecureRandom sr = getSecureRandom();
     
     public static BufferedImage generateImage(String text, int fontSize, int height, int width)
     {
@@ -187,7 +187,7 @@ public class Encrypter
                 {
                     if(image.getRGB(x, y)==NEW_WHITE)
                     {
-                        Collections.shuffle(whiteShare, getSecureRandom());
+                        Collections.shuffle(whiteShare, sr);
                         int shareSchemeCount = 0;
                         
                         for(BufferedImage share:shares)
@@ -272,16 +272,6 @@ public class Encrypter
     private static byte[] getKey(int numberOfElements)
     {
         byte[] key = new byte[numberOfElements];
-        SecureRandom sr;
-        
-        try 
-        {
-            sr = SecureRandom.getInstance("SHA1PRNG");
-        } 
-        catch (NoSuchAlgorithmException ex) 
-        {
-            sr = new SecureRandom();
-        }
         
         sr.nextBytes(key);
         
