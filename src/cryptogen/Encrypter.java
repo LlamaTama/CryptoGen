@@ -37,7 +37,7 @@ import javax.imageio.ImageIO;
  */
 public class Encrypter 
 {
-    private static final int NEW_WHITE = new Color(0, 0, 0, 255).getRGB();
+    private static final int NEW_WHITE = new Color(255, 255, 255, 255).getRGB();
     private final static int NEW_BLACK = new Color(0, 0, 0, 0).getRGB();
     private static final SecureRandom sr = getSecureRandom();
     
@@ -101,6 +101,20 @@ public class Encrypter
         {
             Integer[][] share1 = {{NEW_WHITE, NEW_BLACK}, {NEW_BLACK, NEW_WHITE},};
             Integer[][] share2 = {{NEW_BLACK, NEW_WHITE}, {NEW_WHITE, NEW_BLACK}};
+            Integer[][][] sharePair1 = {share1, share2};
+            
+            Integer[][] share3 = {{NEW_WHITE, NEW_BLACK}, {NEW_WHITE, NEW_BLACK},};
+            Integer[][] share4 = {{NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_WHITE}};
+            Integer[][][] sharePair2 = {share1, share2};
+            
+            Integer[][] share5 = {{NEW_WHITE, NEW_WHITE}, {NEW_BLACK, NEW_BLACK},};
+            Integer[][] share6 = {{NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_WHITE}};
+            Integer[][][] sharePair3 = {share1, share2};
+            
+            ArrayList<Integer[][][]> sharePairs = new ArrayList<>();
+            sharePairs.add(sharePair1);
+            sharePairs.add(sharePair2);
+            sharePairs.add(sharePair3);
             
             BufferedImage cipherImage = expandImage(image);
             BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -114,15 +128,20 @@ public class Encrypter
                         {
                             for(int col=0; col<2; col++)
                             {
+                                Collections.shuffle(sharePairs, sr);
+                                Integer[][][] sharePair = sharePairs.get(0);
+                                Integer[][] selectedShare1 = sharePair[0];
+                                Integer[][] selectedShare2 = sharePair[1];
+                                
                                 if(key[(y*image.getWidth())+x]%2==0)
                                 {
-                                    keyImage.setRGB(x*2+col, y*2+row, share1[row][col]);
-                                    cipherImage.setRGB(x*2+col, y*2+row, share1[row][col]);
+                                    keyImage.setRGB(x*2+col, y*2+row, selectedShare1[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, selectedShare1[row][col]);
                                 }
                                 else
                                 {
-                                    keyImage.setRGB(x*2+col, y*2+row, share2[row][col]);
-                                    cipherImage.setRGB(x*2+col, y*2+row, share2[row][col]);
+                                    keyImage.setRGB(x*2+col, y*2+row, selectedShare2[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, selectedShare2[row][col]);
                                 }
                             }
                         }
@@ -133,15 +152,20 @@ public class Encrypter
                         {
                             for(int col=0; col<2; col++)
                             {
+                                Collections.shuffle(sharePairs, sr);
+                                Integer[][][] sharePair = sharePairs.get(0);
+                                Integer[][] selectedShare1 = sharePair[0];
+                                Integer[][] selectedShare2 = sharePair[1];
+                                
                                 if(key[(y*image.getWidth())+x]%2==0)
                                 {
-                                    keyImage.setRGB(x*2+col, y*2+row, share1[row][col]);
-                                    cipherImage.setRGB(x*2+col, y*2+row, share2[row][col]);
+                                    keyImage.setRGB(x*2+col, y*2+row, selectedShare1[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, selectedShare2[row][col]);
                                 }
                                 else
                                 {
-                                    keyImage.setRGB(x*2+col, y*2+row, share2[row][col]);
-                                    cipherImage.setRGB(x*2+col, y*2+row, share1[row][col]);
+                                    keyImage.setRGB(x*2+col, y*2+row, selectedShare2[row][col]);
+                                    cipherImage.setRGB(x*2+col, y*2+row, selectedShare1[row][col]);
                                 }
                             }
                         }
