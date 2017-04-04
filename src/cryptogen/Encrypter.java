@@ -230,7 +230,7 @@ public class Encrypter
                     }
                     else
                     {
-                        Collections.shuffle(blackShare, getSecureRandom());
+                        Collections.shuffle(blackShare, sr);
                         int shareSchemeCount = 0;
                         
                         for(BufferedImage share:shares)
