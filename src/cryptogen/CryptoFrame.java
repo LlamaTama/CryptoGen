@@ -339,7 +339,7 @@ public class CryptoFrame extends JFrame implements ActionListener
     
     private void previewText()
     {
-        BufferedImage preview = Encrypter.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
+        BufferedImage preview = ImageOps.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
         JFrame previewFrame = new JFrame();
         JLabel previewLabel = new JLabel(new ImageIcon(preview));
         JScrollPane previewScrollPane = new JScrollPane(previewLabel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -353,7 +353,7 @@ public class CryptoFrame extends JFrame implements ActionListener
     
     private void encryptText()
     {
-        BufferedImage image = Encrypter.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
+        BufferedImage image = ImageOps.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
         if(Encrypter.encryptImage(image, (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
         {
             JOptionPane.showMessageDialog(this, "Success!");
@@ -380,7 +380,7 @@ public class CryptoFrame extends JFrame implements ActionListener
             try
             {
                 BufferedImage image = ImageIO.read(imagePath);
-                if(Encrypter.encryptImage(Encrypter.prepareImage(image), (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
+                if(Encrypter.encryptImage(ImageOps.prepareImage(image), (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
                 {
                     JOptionPane.showMessageDialog(this, "Success!");
                 }
