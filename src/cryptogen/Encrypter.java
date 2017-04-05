@@ -18,18 +18,13 @@
 package cryptogen;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -38,54 +33,19 @@ import javax.imageio.ImageIO;
 public class Encrypter 
 {
     private static final int NEW_WHITE = new Color(255, 255, 255, 255).getRGB();
+
+    public static int getNewWhite() 
+    {
+        return NEW_WHITE;
+    }
+
+    public static int getNewBlack() 
+    {
+        return NEW_BLACK;
+    }
     private final static int NEW_BLACK = new Color(0, 0, 0, 0).getRGB();
     private static final SecureRandom sr = getSecureRandom();
     
-    public static BufferedImage generateImage(String text, int fontSize, int height, int width)
-    {
-        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        
-        Graphics2D g2 = result.createGraphics();
-        g2.setColor(Color.WHITE);
-        g2.fillRect(0, 0, width, height);
-        g2.setColor(Color.BLACK);
-        g2.setFont(new Font("Arial", Font.BOLD, fontSize));
-        FontMetrics fm = g2.getFontMetrics();
-        int textHeight = fm.getHeight();
-        int textY = 0;
-        for(String lineText:text.split("\n"))
-        {
-            g2.drawString(lineText, 0, textY+=textHeight);
-        }
-        g2.dispose();
-        
-        return result;
-    }
-    
-    public static BufferedImage prepareImage(BufferedImage image)
-    {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = result.createGraphics();
-        g2.drawImage(image, null, 0, 0);
-        g2.dispose();
-        
-        for(int y=0; y<result.getHeight(); y++)
-        {
-            for(int x=0; x<result.getWidth(); x++)
-            {
-                if(result.getRGB(x, y)==Color.WHITE.getRGB())
-                {
-                    result.setRGB(x, y, NEW_WHITE);
-                }
-                else if(result.getRGB(x, y)==Color.BLACK.getRGB())
-                {
-                    result.setRGB(x, y, NEW_BLACK);
-                }
-            }
-        }
-        
-        return result;
-}
     
     public static boolean encryptImage(BufferedImage image, int numberOfImages, File path, String prefix)
     {
@@ -116,7 +76,7 @@ public class Encrypter
             sharePairs.add(sharePair2);
             sharePairs.add(sharePair3);
             
-            BufferedImage cipherImage = expandImage(image);
+            BufferedImage cipherImage = ImageOps.expandImage(image);
             BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
             for(int y=0; y<image.getHeight(); y++)
             {
@@ -258,40 +218,12 @@ public class Encrypter
         Iterator<BufferedImage> imageIterator = outputImages.iterator();
         while(imageIterator.hasNext())
         {
-            result = result && writeImageToFile(imageIterator.next(), new File(path.getPath() + "/" + prefix + imageCount++ + ".png"));
+            result = result && ImageOps.writeImageToFile(imageIterator.next(), new File(path.getPath() + "/" + prefix + imageCount++ + ".png"));
         }
         
         return result;
     }
     
-    private static BufferedImage expandImage(BufferedImage image)
-    {
-        BufferedImage expandedImage = new BufferedImage(image.getWidth()*2, image.getHeight()*2, BufferedImage.TYPE_INT_ARGB);
-        
-        for(int x=0; x<image.getWidth(); x++)
-        {
-            for(int y=0; y<image.getHeight(); y++)
-            {
-
-                if(image.getRGB(x, y)==Color.WHITE.getRGB())
-                {
-                    expandedImage.setRGB(x*2, y*2, NEW_WHITE);
-                    expandedImage.setRGB(x*2, y*2+1, NEW_WHITE);
-                    expandedImage.setRGB(x*2+1, y*2, NEW_WHITE);
-                    expandedImage.setRGB(x*2+1, y*2+1, NEW_WHITE);
-                }
-                else
-                {
-                    expandedImage.setRGB(x*2, y*2, NEW_BLACK);
-                    expandedImage.setRGB(x*2, y*2+1, NEW_BLACK);
-                    expandedImage.setRGB(x*2+1, y*2, NEW_BLACK);
-                    expandedImage.setRGB(x*2+1, y*2+1, NEW_BLACK);
-                }
-            }
-        }
-        
-        return expandedImage;
-    }
     
     private static byte[] getKey(int numberOfElements)
     {
@@ -318,21 +250,6 @@ public class Encrypter
         return sr;
     }
     
-    private static boolean writeImageToFile(BufferedImage image, File path)
-    {
-        boolean result = false;
-        
-        try
-        {
-            result = ImageIO.write(image, "png", path);
-        }
-        catch(IOException ioe)
-        {
-            System.out.println(ioe);
-        }
-        
-        return result;
-    }
     
     private static int colorXOR(int color1, int color2)
     {
