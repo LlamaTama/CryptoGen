@@ -65,11 +65,11 @@ public class Encrypter
             
             Integer[][] share3 = {{NEW_WHITE, NEW_BLACK}, {NEW_WHITE, NEW_BLACK},};
             Integer[][] share4 = {{NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_WHITE}};
-            Integer[][][] sharePair2 = {share1, share2};
+            Integer[][][] sharePair2 = {share3, share4};
             
             Integer[][] share5 = {{NEW_WHITE, NEW_WHITE}, {NEW_BLACK, NEW_BLACK},};
             Integer[][] share6 = {{NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_WHITE}};
-            Integer[][][] sharePair3 = {share1, share2};
+            Integer[][][] sharePair3 = {share5, share6};
             
             ArrayList<Integer[][][]> sharePairs = new ArrayList<>();
             sharePairs.add(sharePair1);
