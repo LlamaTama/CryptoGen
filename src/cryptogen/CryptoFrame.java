@@ -339,6 +339,7 @@ public class CryptoFrame extends JFrame implements ActionListener
     
     private void previewText()
     {
+        //Generate a preview for the image created from user's text
         BufferedImage preview = ImageOps.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
         JFrame previewFrame = new JFrame();
         JLabel previewLabel = new JLabel(new ImageIcon(preview));
@@ -353,6 +354,7 @@ public class CryptoFrame extends JFrame implements ActionListener
     
     private void encryptText()
     {
+        //Encrypt the image representing the user's text
         BufferedImage image = ImageOps.generateImage(inputTextTextArea.getText(), (Integer)inputTextFontSizeSpinner.getValue(), (Integer)inputTextHeightSpinner.getValue(), (Integer)inputTextWidthSpinner.getValue());
         if(Encrypter.encryptImage(image, (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
         {
@@ -375,10 +377,12 @@ public class CryptoFrame extends JFrame implements ActionListener
     private void encryptImage()
     {
         File imagePath = new File(inputImageTextField.getText());
+        //Check if image path is valid
         if(imagePath.exists())
         {
             try
             {
+                //Read image from file and encrypt it
                 BufferedImage image = ImageIO.read(imagePath);
                 if(Encrypter.encryptImage(ImageOps.prepareImage(image), (Integer) numberOfImagesSpinner.getValue(), new File(outputDirectoryTextField.getText()), outputFileTextField.getText()))
                 {
