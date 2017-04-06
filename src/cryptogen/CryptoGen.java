@@ -26,6 +26,7 @@ public class CryptoGen
 {
     public static void main(String args[])
     {
+        //Run GUI on EDT
         SwingUtilities.invokeLater(new Runnable()
         {
             @Override
