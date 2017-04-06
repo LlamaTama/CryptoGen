@@ -50,6 +50,7 @@ public class ImageOps
         return result;
     }
 
+    //Expand image so one pixel in the original can be represented by n subpixels in the new image
     static BufferedImage expandImage(BufferedImage image) 
     {
         BufferedImage expandedImage = new BufferedImage(image.getWidth() * 2, image.getHeight() * 2, BufferedImage.TYPE_INT_ARGB);
@@ -85,12 +86,14 @@ public class ImageOps
         return result;
     }
 
+    //Convert a black and white image to a usable format
     public static BufferedImage prepareImage(BufferedImage image) 
     {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = result.createGraphics();
         g2.drawImage(image, null, 0, 0);
         g2.dispose();
+        //Replace black and white pixels with NEW_BLACK and NEW_WHITE pixels
         for (int y = 0; y < result.getHeight(); y++) {
             for (int x = 0; x < result.getWidth(); x++) {
                 if (result.getRGB(x, y) == Color.WHITE.getRGB()) {
