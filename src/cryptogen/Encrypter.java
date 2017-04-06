@@ -33,18 +33,8 @@ import java.util.Iterator;
 public class Encrypter 
 {
     private static final int NEW_WHITE = new Color(255, 255, 255, 255).getRGB();
-
-    public static int getNewWhite() 
-    {
-        return NEW_WHITE;
-    }
-
-    public static int getNewBlack() 
-    {
-        return NEW_BLACK;
-    }
-    private final static int NEW_BLACK = new Color(0, 0, 0, 0).getRGB();
-    private static final SecureRandom sr = getSecureRandom();
+    private static final int NEW_BLACK = new Color(0, 0, 0, 0).getRGB();
+    private static final SecureRandom SECURE_RANDOM = getSecureRandom();
     
     
     public static boolean encryptImage(BufferedImage image, int numberOfImages, File path, String prefix)
@@ -88,7 +78,7 @@ public class Encrypter
                         {
                             for(int col=0; col<2; col++)
                             {
-                                Collections.shuffle(sharePairs, sr);
+                                Collections.shuffle(sharePairs, SECURE_RANDOM);
                                 Integer[][][] sharePair = sharePairs.get(0);
                                 Integer[][] selectedShare1 = sharePair[0];
                                 Integer[][] selectedShare2 = sharePair[1];
@@ -112,7 +102,7 @@ public class Encrypter
                         {
                             for(int col=0; col<2; col++)
                             {
-                                Collections.shuffle(sharePairs, sr);
+                                Collections.shuffle(sharePairs, SECURE_RANDOM);
                                 Integer[][][] sharePair = sharePairs.get(0);
                                 Integer[][] selectedShare1 = sharePair[0];
                                 Integer[][] selectedShare2 = sharePair[1];
@@ -171,7 +161,7 @@ public class Encrypter
                 {
                     if(image.getRGB(x, y)==NEW_WHITE)
                     {
-                        Collections.shuffle(whiteShare, sr);
+                        Collections.shuffle(whiteShare, SECURE_RANDOM);
                         int shareSchemeCount = 0;
                         
                         for(BufferedImage share:shares)
@@ -190,7 +180,7 @@ public class Encrypter
                     }
                     else
                     {
-                        Collections.shuffle(blackShare, sr);
+                        Collections.shuffle(blackShare, SECURE_RANDOM);
                         int shareSchemeCount = 0;
                         
                         for(BufferedImage share:shares)
@@ -229,37 +219,34 @@ public class Encrypter
     {
         byte[] key = new byte[numberOfElements];
         
-        sr.nextBytes(key);
+        SECURE_RANDOM.nextBytes(key);
         
         return key;
     }
     
     private static SecureRandom getSecureRandom()
     {
-        SecureRandom sr;
+        SecureRandom secureRandom;
 
         try 
         {
-            sr = SecureRandom.getInstance("SHA1PRNG");
+            secureRandom = SecureRandom.getInstance("SHA1PRNG");
         } 
         catch (NoSuchAlgorithmException ex) 
         {
-            sr = new SecureRandom();
+            secureRandom = new SecureRandom();
         }
         
-        return sr;
+        return secureRandom;
     }
     
-    
-    private static int colorXOR(int color1, int color2)
+    public static int getNewWhite() 
     {
-        Color c1 = new Color(color1);
-        Color c2 = new Color(color2);
-        
-        if(c1.getRed()==c2.getRed() && c1.getGreen()==c2.getGreen() && c1.getBlue()==c2.getBlue())
-        {
-            return NEW_WHITE;
-        }
+        return NEW_WHITE;
+    }
+
+    public static int getNewBlack() 
+    {
         return NEW_BLACK;
     }
 }
