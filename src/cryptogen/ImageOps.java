@@ -32,7 +32,8 @@ import javax.imageio.ImageIO;
  */
 public class ImageOps 
 {   
-    public static BufferedImage generateImage(String text, int fontSize, int height, int width) {
+    public static BufferedImage generateImage(String text, int fontSize, int height, int width) 
+    {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = result.createGraphics();
         g2.setColor(Color.WHITE);
@@ -49,7 +50,8 @@ public class ImageOps
         return result;
     }
 
-    static BufferedImage expandImage(BufferedImage image) {
+    static BufferedImage expandImage(BufferedImage image) 
+    {
         BufferedImage expandedImage = new BufferedImage(image.getWidth() * 2, image.getHeight() * 2, BufferedImage.TYPE_INT_ARGB);
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
@@ -69,17 +71,22 @@ public class ImageOps
         return expandedImage;
     }
 
-    static boolean writeImageToFile(BufferedImage image, File path) {
+    static boolean writeImageToFile(BufferedImage image, File path) 
+    {
         boolean result = false;
-        try {
+        try 
+        {
             result = ImageIO.write(image, "png", path);
-        } catch (IOException ioe) {
+        } 
+        catch (IOException ioe) 
+        {
             System.out.println(ioe);
         }
         return result;
     }
 
-    public static BufferedImage prepareImage(BufferedImage image) {
+    public static BufferedImage prepareImage(BufferedImage image) 
+    {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = result.createGraphics();
         g2.drawImage(image, null, 0, 0);
