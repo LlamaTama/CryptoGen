@@ -32,8 +32,10 @@ import java.util.Iterator;
  */
 public class Encrypter 
 {
+    //Constants representing output colours
     private static final int NEW_WHITE = new Color(255, 255, 255, 255).getRGB();
     private static final int NEW_BLACK = new Color(0, 0, 0, 0).getRGB();
+    
     private static final SecureRandom SECURE_RANDOM = getSecureRandom();
     
     
@@ -49,6 +51,7 @@ public class Encrypter
         
         if(numberOfImages==2)
         {
+            //Arrays representing subpixel patterns
             Integer[][] share1 = {{NEW_WHITE, NEW_BLACK}, {NEW_BLACK, NEW_WHITE},};
             Integer[][] share2 = {{NEW_BLACK, NEW_WHITE}, {NEW_WHITE, NEW_BLACK}};
             Integer[][][] sharePair1 = {share1, share2};
@@ -68,6 +71,7 @@ public class Encrypter
             
             BufferedImage cipherImage = ImageOps.expandImage(image);
             BufferedImage keyImage = new BufferedImage(cipherImage.getWidth(), cipherImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            //For each pixel in the image
             for(int y=0; y<image.getHeight(); y++)
             {
                 for(int x=0; x<image.getWidth(); x++)
@@ -78,11 +82,14 @@ public class Encrypter
                         {
                             for(int col=0; col<2; col++)
                             {
+                                //Select a random pair of subpixel schemes
                                 Collections.shuffle(sharePairs, SECURE_RANDOM);
                                 Integer[][][] sharePair = sharePairs.get(0);
                                 Integer[][] selectedShare1 = sharePair[0];
                                 Integer[][] selectedShare2 = sharePair[1];
                                 
+                                //If original pixel is white, ensure both subpixels follow the same scheme
+                                //Which scheme to use is decided at random
                                 if(key[(y*image.getWidth())+x]%2==0)
                                 {
                                     keyImage.setRGB(x*2+col, y*2+row, selectedShare1[row][col]);
@@ -107,6 +114,8 @@ public class Encrypter
                                 Integer[][] selectedShare1 = sharePair[0];
                                 Integer[][] selectedShare2 = sharePair[1];
                                 
+                                //If original pixel is black, ensure subpixels follow opposing schemes
+                                //Order in which to use schemes is decided at random
                                 if(key[(y*image.getWidth())+x]%2==0)
                                 {
                                     keyImage.setRGB(x*2+col, y*2+row, selectedShare1[row][col]);
@@ -129,6 +138,7 @@ public class Encrypter
         
         else if(numberOfImages==4)
         {
+            //Subpixel schemes for black pixels
             Integer[][] blackShare1 = {{NEW_WHITE, NEW_BLACK, NEW_BLACK}, {NEW_BLACK, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_WHITE, NEW_WHITE}};
             Integer[][] blackShare2 = {{NEW_WHITE, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}, {NEW_WHITE, NEW_BLACK, NEW_BLACK}};
             Integer[][] blackShare3 = {{NEW_WHITE, NEW_WHITE, NEW_BLACK}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_WHITE, NEW_BLACK}};
@@ -139,6 +149,7 @@ public class Encrypter
             blackShare.add(blackShare3);
             blackShare.add(blackShare4);
             
+            //Subpixel schemes for white pixels
             Integer[][] whiteShare1 = {{NEW_WHITE, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_BLACK, NEW_WHITE}};
             Integer[][] whiteShare2 = {{NEW_WHITE, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_BLACK}, {NEW_WHITE, NEW_WHITE, NEW_BLACK}};
             Integer[][] whiteShare3 = {{NEW_WHITE, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}, {NEW_BLACK, NEW_BLACK, NEW_WHITE}};
@@ -159,6 +170,7 @@ public class Encrypter
             {
                 for(int x=0; x<image.getWidth(); x++)
                 {
+                    //If pixel in original image is white, choose random white subpixels for each share
                     if(image.getRGB(x, y)==NEW_WHITE)
                     {
                         Collections.shuffle(whiteShare, SECURE_RANDOM);
@@ -178,6 +190,7 @@ public class Encrypter
                             
                         }
                     }
+                    //If pixel in original image is black, choose random black subpixels for each share
                     else
                     {
                         Collections.shuffle(blackShare, SECURE_RANDOM);
